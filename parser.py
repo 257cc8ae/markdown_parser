@@ -20,6 +20,7 @@ def markdown(content):
         "img_title": re.compile(r"!\[(.*)\]\((.*)\s\"(.*)\"\)"),
         "img": re.compile(r"^!\[(.*)\]\(.*\)"),
         "hr": re.compile(r"^[* -]{3,}"),
+        "checkbox": re.compile(r"^-\s\[([\sx])\]\s(.*)"),
     }
     html_source = ""
     for line in lines:
@@ -51,5 +52,14 @@ def markdown(content):
                 1), "src": img_tag.group(2), "loading": "lazy"}, "")
         elif block_tags["hr"].fullmatch(line):
             html_source += createElement("hr", {}, "")
+        elif block_tags["checkbox"].fullmatch(line):
+            if block_tags["checkbox"].match(line).group(1) == "x":
+                checkbox_attributes = {
+                    "type": "checkbox", "disabled": "", "checked": ""
+                }
+            else:
+                checkbox_attributes = {"type": "checkbox", "disabled": ""}
+            checkbox: str = createElement("input", checkbox_attributes, "")
+            html_source += createElement("li", {}, checkbox + block_tags["checkbox"].match(line).group(2))
 
     return html_source
